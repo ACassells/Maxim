@@ -27,6 +27,7 @@ function Maxim(t) {
       xhr.onload = function() {
         context.decodeAudioData(xhr.response, function(buffer) {
           baseAudio.audioBuffer = buffer;
+          baseAudio.analyser = context.createAnalyser();
         });
       }
       xhr.send();
@@ -37,13 +38,14 @@ function Maxim(t) {
       var baseAudio = new BaseAudio();
       context.decodeAudioData(songString, function(buffer) {
         baseAudio.audioBuffer = buffer;
+        baseAudio.analyser = context.createAnalyser();
       });
       return baseAudio;
     }
   }
 
   function BaseAudio() {
-    this.source
+    this.source;
     this.isLooping = false;
     this.analysing = false;
     this.startTime = 0;
@@ -79,7 +81,7 @@ function Maxim(t) {
   }
 
   BaseAudio.prototype.speed = function(speed) {
-    if (source) {
+    if (this.source) {
       this.currentSpeed = speed;
       this.source.playbackRate.value = speed;
     }
@@ -114,15 +116,14 @@ function Maxim(t) {
       this.filter.connect(this.gainNode);
       this.gainNode.connect(context.destination);
       this.gainNode.gain.value = this.pVolume;
-      if (this.isLooping)
-        source.loop = true;
+      if (this.isLooping) this.source.loop = true;
       this.source.noteGrainOn(0, this.startTime, this.source.buffer.duration - this.startTime);
     }
     if (this.analysing == true) {
       this.gainNode.connect(this.analyser);
       this.FFTData = new Float32Array(this.analyser.frequencyBinCount);
       // hmmm not sure about this line
-      this.analyser.getFloatFrequencyData(FFTData);
+      this.analyser.getFloatFrequencyData(this.FFTData);
     }
   }
 
@@ -175,6 +176,12 @@ function Maxim(t) {
     }
     FFTData1 = this.FFTData;
     return (100 + (this.flux / this.analyser.frequencyBinCount)) * 0.01;
+  }
+  
+  
+  // ADDED FOR BACKWARD COMPATABILITY
+  BaseAudio.prototype.setAnalysing = function(analysing_) {
+      this.analysing = analysing_;
   }
 }
 
