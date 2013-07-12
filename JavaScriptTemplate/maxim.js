@@ -63,6 +63,9 @@ function Maxim(t) {
     this.averageSpectrumPower = 0;
   }
 
+  BaseAudio.prototype.audioReady = function() {
+     return (this.audioBuffer != null && this.audioBuffer != undefined);
+  }
 
   BaseAudio.prototype.isPlaying = function() {
     if (this.source) {
@@ -102,7 +105,7 @@ function Maxim(t) {
 
   BaseAudio.prototype.play = function() {
     //if (this.source) {
-    if (!this.isPlaying()) {
+    if (!this.isPlaying() && this.audioBuffer) {
       this.source = context.createBufferSource();
       this.gainNode = context.createGainNode()
       this.filter = context.createBiquadFilter();
@@ -119,7 +122,7 @@ function Maxim(t) {
       if (this.isLooping) this.source.loop = true;
       this.source.noteGrainOn(0, this.startTime, this.source.buffer.duration - this.startTime);
     }
-    if (this.analysing == true) {
+    if (this.analysing == true  && this.analyser) {
       this.gainNode.connect(this.analyser);
       this.FFTData = new Float32Array(this.analyser.frequencyBinCount);
       // hmmm not sure about this line
@@ -142,7 +145,6 @@ function Maxim(t) {
   BaseAudio.prototype.filterRamp = function(freq, envTime) {
     this.filter.frequency.cancelScheduledValues(context.currentTime);
     this.filter.frequency.linearRampToValueAtTime(filter.frequency.value, context.currentTime);
-    // THIS IS THE CHANGE FROM PREVIOUS CODE EXAMPLE
     this.filter.frequency.linearRampToValueAtTime(freq, context.currentTime + envTime / 1000.);
   }
 
@@ -178,11 +180,17 @@ function Maxim(t) {
     return (100 + (this.flux / this.analyser.frequencyBinCount)) * 0.01;
   }
   
-  
-  // ADDED FOR BACKWARD COMPATABILITY
+
   BaseAudio.prototype.setAnalysing = function(analysing_) {
       this.analysing = analysing_;
   }
+  
+  BaseAudio.prototype.getPowerSpectrum  = function(analysing_) {
+      if (this.source && this.audioBuffer) {
+        return this.FFTData;
+      }
+  }
+  
 }
 
 
