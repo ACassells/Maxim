@@ -33,33 +33,33 @@ function Maxim(t) {
     }   
 
     this.loadFile = function(filename) {
-		var baseAudio = new BaseAudio();
-		if (context) {
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', filename, true);
-			xhr.responseType = 'arraybuffer';
-			xhr.onload = function() {
-			  context.decodeAudioData(xhr.response, function(buffer) {
-				baseAudio.audioBuffer = buffer;
-				baseAudio.analyser = context.createAnalyser();
-			  });
-			}
-			xhr.send();
-		}
-		return baseAudio;
+        var baseAudio = new BaseAudio();
+        if (context) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', filename, true);
+            xhr.responseType = 'arraybuffer';
+            xhr.onload = function() {
+              context.decodeAudioData(xhr.response, function(buffer) {
+                baseAudio.audioBuffer = buffer;
+                baseAudio.analyser = context.createAnalyser();
+              });
+            }
+            xhr.send();
+        }
+        return baseAudio;
     }
 
     this.loadLocalFile = function(songString) {
-		var baseAudio = new BaseAudio();
-		if (context) {
-			context.decodeAudioData(songString, function(buffer) {
-				baseAudio.audioBuffer = buffer;
-				baseAudio.analyser = context.createAnalyser();
-			});
-		}
-		return baseAudio;
+        var baseAudio = new BaseAudio();
+        if (context) {
+            context.decodeAudioData(songString, function(buffer) {
+                baseAudio.audioBuffer = buffer;
+                baseAudio.analyser = context.createAnalyser();
+            });
+        }
+        return baseAudio;
     }
-	
+    
     BaseAudio.prototype.audioReady = function () {
         return (this.audioBuffer !== null && this.audioBuffer !== undefined);
     };
